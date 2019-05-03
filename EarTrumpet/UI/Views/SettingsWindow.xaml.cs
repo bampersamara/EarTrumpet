@@ -20,10 +20,11 @@ namespace EarTrumpet.UI.Views
 
             InitializeComponent();
 
-            SourceInitialized += SettingsWindow_SourceInitialized;
+            SourceInitialized += OnSourceInitialized;
             this.FlowDirection = SystemSettings.IsRTL ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
             Themes.Manager.Current.ThemeChanged += SetBlurColor;
             Closed += (_, __) => Themes.Manager.Current.ThemeChanged -= SetBlurColor;
+            StateChanged += OnWindowStateChanged;
         }
 
         private void SetBlurColor()
@@ -31,12 +32,13 @@ namespace EarTrumpet.UI.Views
             AccentPolicyLibrary.EnableAcrylic(this, Themes.Manager.Current.ResolveRef(this, "AcrylicColor_Settings"), Interop.User32.AccentFlags.DrawAllBorders);
         }
 
-        private void SettingsWindow_SourceInitialized(object sender, System.EventArgs e)
+        private void OnSourceInitialized(object sender, System.EventArgs e)
         {
             Trace.WriteLine("SettingsWindow SettingsWindow_SourceInitialized");
 
             this.Cloak();
             SetBlurColor();
+            WindowSizeHelper.RestrictSizeToWorkArea(this);
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -61,13 +63,18 @@ namespace EarTrumpet.UI.Views
 
         private void MaximizeRestoreButton_Click(object sender, RoutedEventArgs e)
         {
-            WindowState = (WindowState == WindowState.Maximized) ?
-                WindowState.Normal : WindowState.Maximized;
+            WindowState = (WindowState == WindowState.Maximized) ? WindowState.Normal : WindowState.Maximized;
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
             WindowState = WindowState.Minimized;
+        }
+
+        private void OnWindowStateChanged(object sender, EventArgs e)
+        {
+            var chrome = System.Windows.Shell.WindowChrome.GetWindowChrome(this);
+            chrome.ResizeBorderThickness = WindowState == WindowState.Maximized ? new Thickness(0) : SystemParameters.WindowResizeBorderThickness;
         }
     }
 }

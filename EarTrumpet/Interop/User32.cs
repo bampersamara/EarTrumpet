@@ -10,6 +10,7 @@ namespace EarTrumpet.Interop
         public const int WM_HOTKEY = 0x0312;
         public const int WM_USERMAGIC = 1120;
         public const int SNDVOL_ACTION_SHOWCONTEXTMENU = 123;
+        public const int WM_GETMINMAXINFO = 0x0024;
 
         public static uint MAKEWPARAM(ushort low, ushort high)
         {
@@ -48,6 +49,10 @@ namespace EarTrumpet.Interop
 
         [DllImport("user32.dll", PreserveSig = true)]
         internal static extern IntPtr MonitorFromWindow(IntPtr hWnd, MONITOR_DEFAULT flags);
+
+        [DllImport("user32.dll", PreserveSig = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
 
         [DllImport("user32.dll", PreserveSig = true)]
         internal static extern int SetWindowCompositionAttribute(
