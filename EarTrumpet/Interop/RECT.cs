@@ -12,5 +12,6 @@ namespace EarTrumpet.Interop
 
         public int Width() => Right - Left;
         public int Height() => Bottom - Top;
+        public bool Contains(POINT pt) => pt.X >= Left && pt.X <= Right && pt.Y >= Top && pt.Y <= Bottom;
     }
 }
