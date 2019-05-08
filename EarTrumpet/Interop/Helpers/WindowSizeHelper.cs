@@ -35,7 +35,7 @@ namespace EarTrumpet.Interop.Helpers
                 {
                     var window = (Window)HwndSource.FromHwnd(hwnd).RootVisual;
                     var minMaxInfo = Marshal.PtrToStructure<MINMAXINFO>(lParam);
-                    minMaxInfo.MaxPosition = new POINT { X = 0, Y = 0 };
+                    minMaxInfo.MaxPosition = new POINT { X = monitorInfo.WorkArea.Left, Y = monitorInfo.WorkArea.Top };
                     minMaxInfo.MaxSize = new POINT { X = monitorInfo.WorkArea.Width(), Y = monitorInfo.WorkArea.Height() };
                     minMaxInfo.MinTrackSize = new POINT { X = (int)(window.MinWidth * window.DpiWidthFactor()), Y = (int)(window.MinHeight * window.DpiHeightFactor()) };
 
