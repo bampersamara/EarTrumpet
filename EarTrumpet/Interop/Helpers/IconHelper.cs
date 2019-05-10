@@ -59,10 +59,19 @@ namespace EarTrumpet.Interop.Helpers
             }
         }
 
-        public static ImageSource LoadShellIcon(string path, int cx, int cy)
+        public static ImageSource LoadShellIcon(string path, bool isDesktopApp, int cx, int cy)
         {
-            Shell32.SHCreateItemFromParsingName(path, IntPtr.Zero, typeof(IShellItemImageFactory).GUID, out var fac);
-            fac.GetImage(new SIZE { cx = cx, cy = cy }, SIIGBF.SIIGBF_RESIZETOFIT, out var bmp);
+            IShellItem2 item;
+            if (isDesktopApp)
+            {
+                item = Shell32.SHCreateItemFromParsingName(path, IntPtr.Zero, typeof(IShellItem2).GUID);
+            }
+            else
+            {
+                item = Shell32.SHCreateItemInKnownFolder(ref FolderIds.AppsFolder, Shell32.KF_FLAG_DONT_VERIFY, path, typeof(IShellItem2).GUID);
+            }
+
+            ((IShellItemImageFactory)item).GetImage(new SIZE { cx = cx, cy = cy }, SIIGBF.SIIGBF_RESIZETOFIT, out var bmp);
             try
             {
                 var ret = Imaging.CreateBitmapSourceFromHBitmap(

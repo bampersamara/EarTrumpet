@@ -8,11 +8,10 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 
 namespace EarTrumpet.UI.Controls
 {
-    class ImageEx  : Image
+    class ImageEx : Image
     {
         public IconLoadInfo SourceEx { get => (IconLoadInfo)GetValue(SourceExProperty); set => SetValue(SourceExProperty, value); }
         public static readonly DependencyProperty SourceExProperty = DependencyProperty.Register(
@@ -53,29 +52,17 @@ namespace EarTrumpet.UI.Controls
             ImageSource ret = null;
             try
             {
-                if (isDesktopApp)
-                {
-                    var scale = GetWindowDpi() / (double)96;
+                var scale = GetWindowDpi() / (double)96;
 
-                    var iconPath = new StringBuilder(path);
-                    int iconIndex = Shlwapi.PathParseIconLocationW(iconPath);
-                    if (iconIndex != 0)
-                    {
-                        ret = IconHelper.LoadIcon(iconPath.ToString(), iconIndex, (int)(Width * scale), (int)(Height * scale)).ToImageSource();
-                    }
-                    else
-                    {
-                        ret = IconHelper.LoadShellIcon(path, (int)(Width * scale), (int)(Height * scale));
-                    }
+                var iconPath = new StringBuilder(path);
+                int iconIndex = Shlwapi.PathParseIconLocationW(iconPath);
+                if (iconIndex != 0)
+                {
+                    ret = IconHelper.LoadIcon(iconPath.ToString(), iconIndex, (int)(Width * scale), (int)(Height * scale)).ToImageSource();
                 }
                 else
                 {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmap.UriSource = new Uri(path);
-                    bitmap.EndInit();
-                    ret = bitmap;
+                    ret = IconHelper.LoadShellIcon(path, isDesktopApp, (int)(Width * scale), (int)(Height * scale));
                 }
             }
             catch (Exception ex)

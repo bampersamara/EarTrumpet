@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace EarTrumpet.Interop
 {
@@ -22,14 +21,14 @@ namespace EarTrumpet.Interop
             ref Guid kfid,
             uint dwKFFlags,
             [MarshalAs(UnmanagedType.LPWStr)]string pszItem,
-            ref Guid riid);
+            [MarshalAs(UnmanagedType.LPStruct)]Guid riid);
 
         [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern void SHCreateItemFromParsingName(
-            [MarshalAs(UnmanagedType.LPWStr)]string pszPath, 
-            IntPtr pbc, 
-            [MarshalAs(UnmanagedType.LPStruct)]Guid riid, 
-            [MarshalAs(UnmanagedType.Interface, IidParameterIndex = 2)] out IShellItemImageFactory ppv);
+        [return: MarshalAs(UnmanagedType.Interface, IidParameterIndex = 2)]
+        public static extern IShellItem2 SHCreateItemFromParsingName(
+            [MarshalAs(UnmanagedType.LPWStr)]string pszPath,
+            IntPtr pbc,
+            [MarshalAs(UnmanagedType.LPStruct)]Guid riid);
 
         [DllImport("shell32.dll", PreserveSig = true)]
         public static extern UIntPtr SHAppBarMessage(

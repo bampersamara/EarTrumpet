@@ -198,14 +198,11 @@
     <Compile Include="Interop\MMDeviceAPI\IChannelAudioVolume.cs" />
     <Compile Include="Interop\MMDeviceAPI\IDeviceTopology.cs" />
     <Compile Include="Interop\MMDeviceAPI\IMMEndpoint.cs" />
-    <Compile Include="Interop\IMrtResourceManager.cs" />
     <Compile Include="Interop\MMDeviceAPI\IPolicyConfig.cs" />
-    <Compile Include="Interop\IResourceMap.cs" />
     <Compile Include="Interop\IShellItem.cs" />
     <Compile Include="Interop\IShellItem2.cs" />
     <Compile Include="Interop\MMDeviceAPI\IAudioPolicyConfigFactory.cs" />
     <Compile Include="Interop\Kernel32.cs" />
-    <Compile Include="Interop\MrtResourceManager.cs" />
     <Compile Include="Interop\Ntdll.cs" />
     <Compile Include="Interop\Ole32.cs" />
     <Compile Include="Interop\MMDeviceAPI\PolicyConfigClient.cs" />
