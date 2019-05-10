@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace EarTrumpet.Interop
 {
@@ -23,16 +24,17 @@ namespace EarTrumpet.Interop
             [MarshalAs(UnmanagedType.LPWStr)]string pszItem,
             ref Guid riid);
 
-        [DllImport("shell32.dll", PreserveSig = true)]
-        public static extern UIntPtr SHAppBarMessage(
-            AppBarMessage dwMessage, 
-            ref APPBARDATA pData);
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        public static extern void SHCreateItemFromParsingName(
+            [MarshalAs(UnmanagedType.LPWStr)]string pszPath, 
+            IntPtr pbc, 
+            [MarshalAs(UnmanagedType.LPStruct)]Guid riid, 
+            [MarshalAs(UnmanagedType.Interface, IidParameterIndex = 2)] out IShellItemImageFactory ppv);
 
         [DllImport("shell32.dll", PreserveSig = true)]
-        public static extern IntPtr ExtractIcon(
-            IntPtr instanceHandle, 
-            string path, 
-            int iconIndex);
+        public static extern UIntPtr SHAppBarMessage(
+            AppBarMessage dwMessage,
+            ref APPBARDATA pData);
 
         public enum NotifyIconMessage : int
         {
@@ -60,7 +62,7 @@ namespace EarTrumpet.Interop
         [DllImport("shell32.dll", PreserveSig = true, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool Shell_NotifyIconW(
-            NotifyIconMessage message, 
+            NotifyIconMessage message,
             ref NOTIFYICONDATAW pNotifyIconData);
 
         [DllImport("shell32.dll", PreserveSig = true)]

@@ -3,6 +3,9 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Text;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace EarTrumpet.Interop.Helpers
 {
@@ -17,7 +20,7 @@ namespace EarTrumpet.Interop.Helpers
                 using (var stream = System.Windows.Application.GetResourceStream(new Uri(path)).Stream)
                 {
                     icon = new Icon(stream, new Size(
-                        User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CXICON, dpi), 
+                        User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CXICON, dpi),
                         User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CYICON, dpi)));
                 }
             }
@@ -25,16 +28,14 @@ namespace EarTrumpet.Interop.Helpers
             {
                 var iconPath = new StringBuilder(path);
                 int iconIndex = Shlwapi.PathParseIconLocationW(iconPath);
-                icon = LoadIconWithScaleDown(iconPath.ToString(), iconIndex, 
-                    User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CXSMICON, dpi), 
+                icon = LoadIcon(iconPath.ToString(), iconIndex,
+                    User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CXSMICON, dpi),
                     User32.GetSystemMetricsForDpi(User32.SystemMetrics.SM_CYSMICON, dpi));
             }
-
-            Trace.WriteLine($"IconHelper LoadSmallIcon {icon?.Size.Width}x{icon?.Size.Height} {path}");
             return icon;
         }
 
-        private static Icon LoadIconWithScaleDown(string path, int iconOrdinal, int cx, int cy)
+        public static Icon LoadIcon(string path, int iconOrdinal, int cx, int cy)
         {
             var hModule = Kernel32.LoadLibraryEx(path, IntPtr.Zero, Kernel32.LoadLibraryFlags.LOAD_LIBRARY_AS_DATAFILE | Kernel32.LoadLibraryFlags.LOAD_LIBRARY_AS_IMAGE_RESOURCE);
             try
@@ -47,7 +48,10 @@ namespace EarTrumpet.Interop.Helpers
                 var iconResData = Kernel32.LockResource(Kernel32.LoadResource(hModule, iconResInfo));
                 var iconResSize = Kernel32.SizeofResource(hModule, iconResInfo);
                 var iconHandle = User32.CreateIconFromResourceEx(iconResData, iconResSize, true, User32.IconCursorVersion.Default, cx, cy, User32.LoadImageFlags.LR_DEFAULTCOLOR);
-                return Icon.FromHandle(iconHandle).AsDisposableIcon();
+                var icon = Icon.FromHandle(iconHandle).AsDisposableIcon();
+
+                Trace.WriteLine($"IconHelper LoadIcon {icon?.Size.Width}x{icon?.Size.Height} {path}");
+                return icon;
             }
             finally
             {
@@ -55,17 +59,23 @@ namespace EarTrumpet.Interop.Helpers
             }
         }
 
-
-        public static Icon ShellExtractIcon(string path, int iconIndex = 0)
+        public static ImageSource LoadShellIcon(string path, int cx, int cy)
         {
-            IntPtr iconHandle = IntPtr.Zero;
+            Shell32.SHCreateItemFromParsingName(path, IntPtr.Zero, typeof(IShellItemImageFactory).GUID, out var fac);
+            fac.GetImage(new SIZE { cx = cx, cy = cy }, SIIGBF.SIIGBF_RESIZETOFIT, out var bmp);
             try
             {
-                return Icon.FromHandle(Shell32.ExtractIcon(Process.GetCurrentProcess().Handle, path, iconIndex)).AsDisposableIcon();
+                var ret = Imaging.CreateBitmapSourceFromHBitmap(
+                    bmp,
+                    IntPtr.Zero,
+                    System.Windows.Int32Rect.Empty,
+                    BitmapSizeOptions.FromEmptyOptions());
+                Trace.WriteLine($"IconHelper LoadAppIcon {cx}x{cy} {path}");
+                return ret;
             }
             finally
             {
-                User32.DestroyIcon(iconHandle);
+                Gdi32.DeleteObject(bmp);
             }
         }
 
